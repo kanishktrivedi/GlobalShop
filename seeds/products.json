@@ -1,0 +1,70 @@
+[
+  {
+    "name": "Wireless Headphones",
+    "description": "ANC over-ear with 30h battery.",
+    "basePrice": 149.99,
+    "baseCurrency": "USD",
+    "priceOverrides": { "EUR": 139.99, "GBP": 119.99 },
+    "images": [
+      "https://images.unsplash.com/photo-1518441902112-f0d85f4f87ac?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Smart Watch",
+    "description": "AMOLED display, GPS, HRV tracking.",
+    "basePrice": 199.0,
+    "baseCurrency": "USD",
+    "priceOverrides": { "EUR": 189.0 },
+    "images": [
+      "https://images.unsplash.com/photo-1518441902112-f0d85f4f87ac?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Mechanical Keyboard",
+    "description": "Low-profile, hot-swappable switches.",
+    "basePrice": 109.0,
+    "baseCurrency": "USD",
+    "priceOverrides": { "GBP": 99.0 },
+    "images": [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "USB-C Hub",
+    "description": "8-in-1, 100W PD, HDMI 4K.",
+    "basePrice": 59.0,
+    "baseCurrency": "USD",
+    "priceOverrides": {},
+    "images": [
+      "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "4K Webcam",
+    "description": "Autofocus, dual mics, privacy shutter.",
+    "basePrice": 129.0,
+    "baseCurrency": "USD",
+    "priceOverrides": { "CAD": 169.0 },
+    "images": [
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Portable SSD 1TB",
+    "description": "USB 3.2 Gen2, 1,000 MB/s.",
+    "basePrice": 139.0,
+    "baseCurrency": "USD",
+    "priceOverrides": { "AUD": 219.0 },
+    "images": [
+      "https://images.unsplash.com/photo-1587202372775-98927b115591?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  }
+]
+
+

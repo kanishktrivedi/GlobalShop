@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cart — Multi-Currency Shop</title>
+    <meta name="description" content="Review and manage your shopping cart with real-time currency conversion" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+            colors: {
+              primary: {
+                50: "#eef2ff",
+                100: "#e0e7ff",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca"
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      :root {
+        /* Light theme colors */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-tertiary: #f9f9f9;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --text-tertiary: #9ca3af;
+        --border-primary: #e5e7eb;
+        --border-secondary: #d1d5db;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+
+      /* Dark theme colors */
+      [data-theme="dark"] {
+        --bg-primary: #1f2937;
+        --bg-secondary: #111827;
+        --bg-tertiary: #0f172a;
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-tertiary: #9ca3af;
+        --border-primary: #374151;
+        --border-secondary: #4b5563;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+      }
+
+      * {
+        color-scheme: light dark;
+      }
+
+      html, body {
+        height: 100%;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+
+      /* Apply CSS variables to existing classes */
+      .bg-white {
+        background-color: var(--bg-primary) !important;
+      }
+
+      .bg-neutral-50 {
+        background-color: var(--bg-secondary) !important;
+      }
+
+      .bg-neutral-100 {
+        background-color: var(--bg-tertiary) !important;
+      }
+
+      .text-neutral-900 {
+        color: var(--text-primary) !important;
+      }
+
+      .text-neutral-700 {
+        color: var(--text-secondary) !important;
+      }
+
+      .text-neutral-600 {
+        color: var(--text-secondary) !important;
+      }
+
+      .text-neutral-500 {
+        color: var(--text-tertiary) !important;
+      }
+
+      .border-neutral-200 {
+        border-color: var(--border-primary) !important;
+      }
+
+      .border-neutral-300 {
+        border-color: var(--border-secondary) !important;
+      }
+
+      .ring-neutral-200\/70 {
+        --tw-ring-color: rgb(var(--border-primary) / 0.7) !important;
+      }
+
+      .shadow-sm {
+        box-shadow: var(--shadow-sm) !important;
+      }
+
+      .shadow-md {
+        box-shadow: var(--shadow-md) !important;
+      }
+
+      .shadow-lg {
+        box-shadow: var(--shadow-lg) !important;
+      }
+
+      /* Cart-specific styles */
+      .cart-item {
+        transition: all 0.2s ease;
+      }
+
+      .cart-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      }
+
+      .quantity-controls button {
+        transition: all 0.2s ease;
+      }
+
+      .quantity-controls button:hover {
+        background-color: var(--primary-100);
+        color: var(--primary-700);
+      }
+
+      /* Enhanced cursor interactions */
+      .cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 8px;
+        height: 8px;
+        background: var(--primary-500);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.1s ease;
+        mix-blend-mode: difference;
+      }
+
+      .cursor-outline {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 32px;
+        height: 32px;
+        border: 2px solid var(--primary-400);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      /* Cursor hover effects */
+      .cursor-hover .cursor-outline {
+        transform: scale(1.5);
+        border-color: var(--primary-600);
+      }
+
+      .cursor-hover .cursor-dot {
+        transform: scale(2);
+        background: var(--primary-600);
+      }
+
+      /* Click ripple effect */
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(99, 102, 241, 0.3);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+      }
+
+      @keyframes ripple-animation {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+
+      /* Button hover glow */
+      .btn-glow:hover {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+      }
+
+      /* Text selection styling */
+      ::selection {
+        background: var(--primary-200);
+        color: var(--primary-900);
+      }
+
+      ::-moz-selection {
+        background: var(--primary-200);
+        color: var(--primary-900);
+      }
+    </style>
+  </head>
+  <body class="min-h-full bg-neutral-50 text-neutral-900 antialiased">
+    <!-- Custom cursor elements -->
+    <div id="cursorDot" class="cursor-dot"></div>
+    <div id="cursorOutline" class="cursor-outline"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between gap-3">
+          <div class="flex items-center gap-4">
+            <div class="h-8 w-8 rounded-lg bg-primary-600"></div>
+            <span class="text-lg font-semibold">Demo Shop</span>
+            <button id="navToggle" class="md:hidden rounded-md p-2 text-neutral-700 hover:bg-neutral-100" aria-label="Open menu">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <nav class="hidden md:flex items-center gap-4 text-sm text-neutral-700">
+              <a href="index.html" class="hover:text-neutral-900">Home</a>
+              <a href="products.html" class="hover:text-neutral-900">Products</a>
+              <a href="orders.html" class="hover:text-neutral-900">Orders</a>
+              <a href="settings.html" class="hover:text-neutral-900">Settings</a>
+              <a href="cart.html" class="hover:text-neutral-900 font-semibold">Cart</a>
+              <a href="profile.html" class="hover:text-neutral-900">Profile</a>
+            </nav>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <label class="sr-only" for="currencySelect">Currency</label>
+            <select id="currencySelect" class="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+              <option value="USD">USD $</option>
+              <option value="EUR">EUR €</option>
+              <option value="GBP">GBP £</option>
+              <option value="JPY">JPY ¥</option>
+              <option value="INR">INR ₹</option>
+              <option value="AUD">AUD A$</option>
+              <option value="CAD">CAD C$</option>
+            </select>
+
+            <button id="authBtn" class="rounded-md bg-neutral-900 px-3.5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-neutral-800">Sign in</button>
+
+            <!-- User menu (hidden until logged in) -->
+            <div id="userMenu" class="relative hidden">
+              <button id="avatarBtn" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full ring-1 ring-neutral-300">
+                <img id="avatarImg" alt="avatar" class="h-full w-full object-cover hidden" />
+                <span id="avatarFallback" class="text-sm font-semibold text-neutral-700">U</span>
+              </button>
+              <div id="userDropdown" class="absolute right-0 mt-2 hidden w-44 overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 text-sm shadow-lg">
+                <div class="px-3 py-2 text-neutral-700">
+                  <div id="navUserEmail" class="truncate font-medium">user@example.com</div>
+                  <div class="text-xs text-neutral-500">Signed in</div>
+                </div>
+                <div class="my-1 h-px bg-neutral-200"></div>
+                <button id="logoutBtn" class="block w-full px-3 py-2 text-left hover:bg-neutral-50">Log out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile nav dropdown -->
+      <div id="mobileNav" class="md:hidden hidden border-b border-neutral-200 bg-white">
+        <nav class="mx-auto max-w-7xl px-4 py-2 text-sm text-neutral-700">
+          <a href="index.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50">Home</a>
+          <a href="products.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50">Products</a>
+          <a href="orders.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50">Orders</a>
+          <a href="settings.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50">Settings</a>
+          <a href="cart.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50 font-semibold">Cart</a>
+          <a href="profile.html" class="block rounded-md px-2 py-2 hover:bg-neutral-50">Profile</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold tracking-tight text-neutral-900">Shopping Cart</h1>
+        <p class="mt-2 text-lg text-neutral-600">Review your items and proceed to checkout in your preferred currency.</p>
+      </div>
+
+      <!-- Cart Content -->
+      <div class="space-y-8">
+        <!-- Cart Items -->
+        <div id="cartItems" class="space-y-4">
+          <!-- Cart items will be loaded by JavaScript -->
+        </div>
+
+        <!-- Empty Cart State -->
+        <div id="emptyCart" class="hidden py-12 text-center">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
+            <svg class="h-8 w-8 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-neutral-900 mb-2">Your cart is empty</h3>
+          <p class="text-sm text-neutral-600 mb-6">Add some products to get started with your shopping.</p>
+          <a href="products.html" class="inline-flex items-center gap-2 rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Browse Products
+          </a>
+        </div>
+
+        <!-- Cart Summary (shown when cart has items) -->
+        <div id="cartSummary" class="hidden">
+          <div class="rounded-xl bg-white p-6 ring-1 ring-inset ring-neutral-200/70">
+            <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-neutral-600">Subtotal</span>
+                <span id="cartSubtotal" class="font-medium">—</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-neutral-600">Tax (7%)</span>
+                <span id="cartTax" class="font-medium">—</span>
+              </div>
+              <div class="flex items-center justify-between text-lg font-semibold">
+                <span class="text-neutral-900">Total</span>
+                <span id="cartTotal" class="text-neutral-900">—</span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <button id="checkoutBtn" class="w-full rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700">
+                Proceed to Checkout
+              </button>
+
+              <button id="continueShoppingBtn" class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50">
+                Continue Shopping
+              </button>
+            </div>
+
+            <div class="mt-4 text-center">
+              <p class="text-xs text-neutral-500">
+                Secure checkout powered by real-time currency conversion
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/cart-page.js"></script>
+  </body>
+</html>

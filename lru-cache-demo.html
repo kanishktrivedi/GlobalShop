@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache Currency Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-miss { border-left: 3px solid #ffa726; }
+        .log-hit { border-left: 3px solid #66bb6a; }
+        .log-evict { border-left: 3px solid #ef5350; }
+        .log-add { border-left: 3px solid #42a5f5; }
+        button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        .stats {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 LRU Cache + Currency Rates Demo</h1>
+        <p>This demo shows an LRU (Least Recently Used) cache implementation using Map + Doubly Linked List for O(1) operations.</p>
+
+        <div class="demo-section">
+            <h3>🚀 Interactive Demo</h3>
+            <p>Test the LRU cache by requesting currency conversions:</p>
+            <div>
+                <button onclick="runDemo()">Run Full Demo</button>
+                <button onclick="clearLogs()">Clear Logs</button>
+                <button onclick="showCacheState()">Show Cache State</button>
+            </div>
+            <div id="cacheStats" class="stats" style="display: none;"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>📋 Activity Log</h3>
+            <div id="logContainer" style="max-height: 400px; overflow-y: auto;">
+                <!-- Logs will appear here -->
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>💡 How It Works</h3>
+            <ul>
+                <li><strong>LRU Cache:</strong> Uses Map for O(1) key lookups + Doubly Linked List for O(1) order management</li>
+                <li><strong>Cache Hits:</strong> Existing rates are served instantly from cache</li>
+                <li><strong>Cache Misses:</strong> Fresh rates are fetched from exchangerate-api.com</li>
+                <li><strong>Evictions:</strong> When cache is full, least recently used items are removed</li>
+                <li><strong>Time Complexity:</strong> O(1) average for get/put operations</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import our LRU cache implementation
+        import { LRUCache, CurrencyRateService } from './js/lru-cache-dll.js';
+
+        // Override console methods to capture logs in our UI
+        const originalConsole = { ...console };
+        const logContainer = document.getElementById('logContainer');
+
+        function addLog(message, type = '') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = message;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+
+            // Also log to browser console for debugging
+            originalConsole.log(message);
+        }
+
+        // Monkey patch console methods
+        console.log = (...args) => {
+            addLog(args.join(' '));
+        };
+
+        console.error = (...args) => {
+            addLog('❌ ' + args.join(' '), 'log-error');
+        };
+
+        // Create global currency service
+        window.currencyService = new CurrencyRateService(3); // Small cache for demo
+
+        // Demo function
+        window.runDemo = async function() {
+            clearLogs();
+            addLog('🚀 Starting LRU Cache Currency Demo...');
+
+            const conversions = [
+                { amount: 100, from: 'USD', to: 'EUR' },
+                { amount: 50, from: 'USD', to: 'GBP' },
+                { amount: 200, from: 'EUR', to: 'JPY' },
+                { amount: 75, from: 'USD', to: 'EUR' }, // Cache hit
+                { amount: 150, from: 'GBP', to: 'USD' }, // New
+                { amount: 300, from: 'USD', to: 'GBP' }, // Cache hit
+                { amount: 100, from: 'CAD', to: 'AUD' }, // Eviction
+            ];
+
+            for (const conv of conversions) {
+                addLog(`--- Converting ${conv.amount} ${conv.from} to ${conv.to} ---`);
+
+                const result = await window.currencyService.convert(conv.amount, conv.from, conv.to);
+                if (result !== null) {
+                    addLog(`Result: ${conv.amount} ${conv.from} = ${result.toFixed(2)} ${conv.to}`);
+                }
+
+                // Small delay for readability
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            addLog('✨ Demo completed!');
+            showCacheState();
+        };
+
+        window.clearLogs = function() {
+            logContainer.innerHTML = '';
+        };
+
+        window.showCacheState = function() {
+            const stats = window.currencyService.getCacheStats();
+            const statsDiv = document.getElementById('cacheStats');
+
+            statsDiv.innerHTML = `
+                <strong>Cache Statistics:</strong><br>
+                Capacity: ${stats.capacity}<br>
+                Current Size: ${stats.size}<br>
+                Hit Ratio: ${stats.hitRatio.toFixed(2)}%
+            `;
+            statsDiv.style.display = 'block';
+
+            // Also show the cache debug info
+            addLog(`📊 Cache capacity: ${stats.capacity}, size: ${stats.size}`);
+        };
+
+        // Auto-run a quick demo on page load
+        setTimeout(() => {
+            addLog('💡 LRU Cache Demo loaded! Click "Run Full Demo" to see it in action.');
+        }, 500);
+    </script>
+</body>
+</html>

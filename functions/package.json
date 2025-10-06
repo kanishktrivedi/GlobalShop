@@ -1,0 +1,19 @@
+{
+  "name": "cloud-functions",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-functions": "^4.7.0",
+    "firebase-admin": "^12.6.0",
+    "cors": "^2.8.5",
+    "node-fetch": "^3.3.2"
+  },
+  "type": "module"
+}
+
+
