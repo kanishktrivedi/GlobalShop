@@ -9,7 +9,7 @@
 // MODULE IMPORTS & DEPENDENCIES
 // ============================================================================
 
-import { observeAuthState, signInWithGooglePopup, signOutUser, getCurrentUser } from "./firebase.js";
+import { observeAuthState, signInWithGooglePopup, signOutUser, getCurrentUser, createOrder } from "./firebase.js";
 import { Cart } from "./cart.js";
 import { convertList, formatCurrency } from "./currency.js";
 
@@ -355,15 +355,102 @@ function setupMobileNav() {
  */
 function setupActionButtons() {
   // Checkout button
-  els.checkoutBtn?.addEventListener("click", () => {
-    // Navigate to checkout (this would integrate with the main app's checkout flow)
-    window.location.href = '/?checkout=true';
+  els.checkoutBtn?.addEventListener("click", async () => {
+    const items = state.cart.toArray();
+    if (items.length === 0) {
+      showAlert('Your cart is empty', 'error', 3000);
+      return;
+    }
+
+    const user = getCurrentUser();
+    if (!user) {
+      showAlert('Please sign in to checkout', 'error', 3000);
+      // Could show sign-in modal here
+      return;
+    }
+
+    await handleCheckout();
   });
 
   // Continue shopping button
   els.continueShoppingBtn?.addEventListener("click", () => {
-    window.location.href = '/products';
+    window.location.href = '/products.html';
   });
+}
+
+/**
+ * Handles the checkout process
+ */
+async function handleCheckout() {
+  try {
+    const user = getCurrentUser();
+    const items = state.cart.toArray();
+    
+    // Show loading state
+    els.checkoutBtn.disabled = true;
+    els.checkoutBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      Processing...
+    `;
+
+    // Calculate totals with currency conversion
+    const { subtotal, tax, total, items: convertedItems } = await convertList(items, state.currency, TAX_RATE);
+
+    // Create order data
+    const orderData = {
+      userId: user.uid,
+      userEmail: user.email,
+      currency: state.currency,
+      items: convertedItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        qty: item.qty,
+        unitPriceOriginal: item.priceBase,
+        unitPriceConverted: item.unitConverted,
+        currencyOriginal: item.currencyBase,
+        currencyConverted: state.currency,
+        description: item.description || '',
+        image: item.image || ''
+      })),
+      subtotalOriginal: items.reduce((sum, item) => sum + (item.priceBase * item.qty), 0),
+      subtotalConverted: subtotal,
+      taxConverted: tax,
+      totalConverted: total,
+      status: 'completed',
+      paymentMethod: 'demo', // In a real app, this would be from payment processor
+      shippingAddress: {
+        // In a real app, this would be collected from user
+        name: user.displayName || user.email,
+        email: user.email
+      }
+    };
+
+    // Create order in Firestore
+    const orderId = await createOrder(orderData);
+
+    // Clear cart
+    state.cart.clear();
+    saveCartToStorage();
+    updateCartUI();
+
+    // Show success message
+    showAlert(`Order placed successfully! Order #${orderId.slice(-8)}`, 'success', 5000);
+
+    // Navigate to orders page after a delay
+    setTimeout(() => {
+      window.location.href = '/orders.html?newOrder=true';
+    }, 2000);
+
+  } catch (error) {
+    console.error('Checkout error:', error);
+    showAlert('Checkout failed. Please try again.', 'error', 4000);
+  } finally {
+    // Reset checkout button
+    els.checkoutBtn.disabled = false;
+    els.checkoutBtn.innerHTML = 'Proceed to Checkout';
+  }
 }
 
 /**

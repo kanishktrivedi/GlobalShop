@@ -4,9 +4,12 @@
     "description": "ANC over-ear with 30h battery.",
     "basePrice": 149.99,
     "baseCurrency": "USD",
-    "priceOverrides": { "EUR": 139.99, "GBP": 119.99 },
+    "priceOverrides": {
+      "EUR": 139.99,
+      "GBP": 119.99
+    },
     "images": [
-      "https://images.unsplash.com/photo-1518441902112-f0d85f4f87ac?q=80&w=1200&auto=format&fit=crop"
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop"
     ],
     "active": true
   },
@@ -15,9 +18,11 @@
     "description": "AMOLED display, GPS, HRV tracking.",
     "basePrice": 199.0,
     "baseCurrency": "USD",
-    "priceOverrides": { "EUR": 189.0 },
+    "priceOverrides": {
+      "EUR": 189.0
+    },
     "images": [
-      "https://images.unsplash.com/photo-1518441902112-f0d85f4f87ac?q=80&w=1200&auto=format&fit=crop"
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop"
     ],
     "active": true
   },
@@ -26,7 +31,9 @@
     "description": "Low-profile, hot-swappable switches.",
     "basePrice": 109.0,
     "baseCurrency": "USD",
-    "priceOverrides": { "GBP": 99.0 },
+    "priceOverrides": {
+      "GBP": 99.0
+    },
     "images": [
       "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop"
     ],
@@ -48,7 +55,9 @@
     "description": "Autofocus, dual mics, privacy shutter.",
     "basePrice": 129.0,
     "baseCurrency": "USD",
-    "priceOverrides": { "CAD": 169.0 },
+    "priceOverrides": {
+      "CAD": 169.0
+    },
     "images": [
       "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
     ],
@@ -59,12 +68,432 @@
     "description": "USB 3.2 Gen2, 1,000 MB/s.",
     "basePrice": 139.0,
     "baseCurrency": "USD",
-    "priceOverrides": { "AUD": 219.0 },
+    "priceOverrides": {
+      "AUD": 219.0
+    },
     "images": [
       "https://images.unsplash.com/photo-1587202372775-98927b115591?q=80&w=1200&auto=format&fit=crop"
     ],
     "active": true
+  },
+  {
+    "name": "Wireless Mouse",
+    "description": "Ergonomic design, 2.4GHz wireless, 18-month battery.",
+    "basePrice": 39.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 35.99,
+      "GBP": 32.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Bluetooth Speaker",
+    "description": "360° sound, waterproof IPX7, 12h playtime.",
+    "basePrice": 79.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 74.99,
+      "CAD": 99.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Laptop Stand",
+    "description": "Aluminum adjustable stand, heat dissipation.",
+    "basePrice": 49.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "GBP": 42.99,
+      "AUD": 69.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Wireless Charger",
+    "description": "15W fast charging, Qi-certified, LED indicator.",
+    "basePrice": 29.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 27.99,
+      "JPY": 3299
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1609592806596-4d8b5b1d7f77?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Gaming Mouse Pad",
+    "description": "XXL size, RGB lighting, smooth surface.",
+    "basePrice": 34.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 31.99,
+      "GBP": 28.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "USB Microphone",
+    "description": "Studio-quality, cardioid pattern, plug & play.",
+    "basePrice": 89.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 84.99,
+      "CAD": 119.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Monitor Light Bar",
+    "description": "Eye-care LED, asymmetric optics, USB powered.",
+    "basePrice": 69.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 64.99,
+      "GBP": 59.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Cable Management Kit",
+    "description": "Under-desk tray, cable clips, cord organizers.",
+    "basePrice": 24.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 22.99,
+      "AUD": 34.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Portable Monitor",
+    "description": "15.6\" IPS, USB-C, 1080p, ultra-slim design.",
+    "basePrice": 199.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 189.99,
+      "GBP": 169.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Desk Organizer",
+    "description": "Bamboo multi-compartment, phone stand included.",
+    "basePrice": 39.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 36.99,
+      "CAD": 52.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1586953208448-b95a79798f07?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Ring Light",
+    "description": "10\" LED ring, adjustable brightness, phone holder.",
+    "basePrice": 44.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 41.99,
+      "GBP": 37.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Power Bank 20000mAh",
+    "description": "Fast charging, dual USB-C, digital display.",
+    "basePrice": 54.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 49.99,
+      "JPY": 6099
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1609592806596-4d8b5b1d7f77?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Ergonomic Wrist Rest",
+    "description": "Memory foam, anti-slip base, keyboard & mouse set.",
+    "basePrice": 19.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 18.99,
+      "GBP": 16.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Smartphone Gimbal",
+    "description": "3-axis stabilizer, AI tracking, foldable design.",
+    "basePrice": 129.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 119.99,
+      "AUD": 179.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Blue Light Glasses",
+    "description": "Anti-glare coating, lightweight frame, UV protection.",
+    "basePrice": 29.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 27.99,
+      "CAD": 39.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Wireless Earbuds",
+    "description": "True wireless, ANC, 6h+24h battery, IPX5.",
+    "basePrice": 89.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 84.99,
+      "GBP": 74.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Document Camera",
+    "description": "8MP, auto-focus, LED light, USB plug & play.",
+    "basePrice": 79.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 74.99,
+      "JPY": 8899
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Tablet Stand",
+    "description": "Adjustable angle, foldable, universal compatibility.",
+    "basePrice": 24.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 22.99,
+      "GBP": 19.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Mechanical Numpad",
+    "description": "Wireless, hot-swappable switches, RGB backlight.",
+    "basePrice": 59.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 54.99,
+      "AUD": 84.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Desk Lamp",
+    "description": "LED with wireless charging base, touch control.",
+    "basePrice": 64.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 59.99,
+      "CAD": 84.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Cable Tester",
+    "description": "USB-C, Lightning, micro-USB compatibility checker.",
+    "basePrice": 34.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 31.99,
+      "GBP": 28.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Laptop Cooling Pad",
+    "description": "6 fans, RGB lighting, adjustable height.",
+    "basePrice": 49.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 44.99,
+      "JPY": 5599
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Wireless Presenter",
+    "description": "Red laser pointer, 100ft range, USB receiver.",
+    "basePrice": 39.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 36.99,
+      "AUD": 54.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Phone Car Mount",
+    "description": "Magnetic, 360° rotation, dashboard & vent clip.",
+    "basePrice": 19.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 18.99,
+      "CAD": 26.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Digital Drawing Tablet",
+    "description": "10x6 inch, 8192 pressure levels, battery-free pen.",
+    "basePrice": 89.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 84.99,
+      "GBP": 74.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1586953208448-b95a79798f07?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Smart Plug 4-Pack",
+    "description": "WiFi enabled, voice control, scheduling app.",
+    "basePrice": 39.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 36.99,
+      "JPY": 4499
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Webcam Privacy Cover",
+    "description": "Ultra-thin sliding cover, 6-pack, laptop & phone.",
+    "basePrice": 9.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 8.99,
+      "GBP": 7.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Portable Projector",
+    "description": "Mini LED, 1080p support, WiFi & Bluetooth.",
+    "basePrice": 159.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 149.99,
+      "AUD": 219.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "Ergonomic Mouse Pad",
+    "description": "Gel wrist support, non-slip base, easy clean.",
+    "basePrice": 16.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 15.99,
+      "CAD": 22.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
+  },
+  {
+    "name": "USB Hub 7-Port",
+    "description": "USB 3.0, individual switches, LED indicators.",
+    "basePrice": 29.99,
+    "baseCurrency": "USD",
+    "priceOverrides": {
+      "EUR": 27.99,
+      "GBP": 24.99
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop"
+    ],
+    "active": true
   }
 ]
-
-

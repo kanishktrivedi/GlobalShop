@@ -58,11 +58,27 @@ export function getCurrentUser() {
 }
 
 export async function getUserOrders(uid) {
-  // data: { userId, currency, items:[{id, name, qty, unitPriceOriginal, unitPriceConverted, currencyOriginal, currencyConverted}], subtotalOriginal, subtotalConverted }
-  const ordersCol = collection(db, "orders");
-  const q = query(ordersCol, where("userId", "==", uid), orderBy("createdAt", "desc"));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    // Simple query without orderBy to avoid composite index requirement
+    const ordersCol = collection(db, "orders");
+    const q = query(ordersCol, where("userId", "==", uid));
+    const querySnapshot = await getDocs(q);
+    
+    // Get orders and sort in JavaScript instead of Firestore
+    const orders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Sort by createdAt in descending order (newest first)
+    orders.sort((a, b) => {
+      const aTime = a.createdAt?.seconds || a.createdAt?.toDate?.()?.getTime() || 0;
+      const bTime = b.createdAt?.seconds || b.createdAt?.toDate?.()?.getTime() || 0;
+      return bTime - aTime;
+    });
+    
+    return orders;
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    throw error;
+  }
 }
 
 export { auth, db };

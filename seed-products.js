@@ -1,154 +1,132 @@
 /**
- * Script to seed the Firestore database with mock product data
+ * Script to seed the Firestore database with product data from products.json
  * Run this in the browser console on your site to populate the products collection
  */
 
 import { db } from './js/firebase.js';
 import { collection, addDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-const mockProducts = [
-  {
-    name: "Wireless Headphones",
-    description: "Premium ANC over-ear headphones with 30h battery life and crystal-clear audio.",
-    basePrice: 149.99,
-    baseCurrency: "USD",
-    priceOverrides: { "EUR": 139.99, "GBP": 119.99 },
-    images: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Smart Watch",
-    description: "AMOLED display with GPS, heart rate variability tracking, and fitness monitoring.",
-    basePrice: 199.0,
-    baseCurrency: "USD",
-    priceOverrides: { "EUR": 189.0, "CAD": 259.0 },
-    images: [
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Mechanical Keyboard",
-    description: "Low-profile mechanical keyboard with hot-swappable switches and RGB backlighting.",
-    basePrice: 109.0,
-    baseCurrency: "USD",
-    priceOverrides: { "GBP": 99.0, "AUD": 159.0 },
-    images: [
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "USB-C Hub",
-    description: "8-in-1 USB-C hub with 100W power delivery and HDMI 4K output.",
-    basePrice: 59.0,
-    baseCurrency: "USD",
-    priceOverrides: { "JPY": 8900 },
-    images: [
-      "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "4K Webcam",
-    description: "Ultra HD webcam with autofocus, dual microphones, and privacy shutter.",
-    basePrice: 129.0,
-    baseCurrency: "USD",
-    priceOverrides: { "CAD": 169.0, "EUR": 119.0 },
-    images: [
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Portable SSD 1TB",
-    description: "High-speed portable SSD with USB 3.2 Gen2 interface, up to 1,000 MB/s transfer speed.",
-    basePrice: 139.0,
-    baseCurrency: "USD",
-    priceOverrides: { "AUD": 219.0, "GBP": 129.0 },
-    images: [
-      "https://images.unsplash.com/photo-1587202372775-98927b115591?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Wireless Mouse",
-    description: "Ergonomic wireless mouse with precision tracking and 90-day battery life.",
-    basePrice: 49.99,
-    baseCurrency: "USD",
-    priceOverrides: { "EUR": 45.99, "JPY": 7200 },
-    images: [
-      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Bluetooth Speaker",
-    description: "Portable waterproof Bluetooth speaker with 360-degree sound and 20h playtime.",
-    basePrice: 79.99,
-    baseCurrency: "USD",
-    priceOverrides: { "GBP": 69.99, "CAD": 99.99 },
-    images: [
-      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Phone Stand",
-    description: "Adjustable aluminum phone stand compatible with all smartphone sizes.",
-    basePrice: 24.99,
-    baseCurrency: "USD",
-    priceOverrides: { "EUR": 22.99, "AUD": 34.99 },
-    images: [
-      "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  },
-  {
-    name: "Laptop Sleeve",
-    description: "Premium leather laptop sleeve with magnetic closure, fits 13-15 inch laptops.",
-    basePrice: 89.99,
-    baseCurrency: "USD",
-    priceOverrides: { "GBP": 79.99, "EUR": 84.99 },
-    images: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=1200&auto=format&fit=crop"
-    ],
-    active: true
-  }
-];
+/**
+ * Loads product data from the products.json file
+ */
+async function loadProductsFromJSON() {
+  try {
+    console.log('📄 Loading products from seeds/products.json...');
+    const response = await fetch('./seeds/products.json');
 
-export async function seedProducts() {
+    if (!response.ok) {
+      throw new Error(`Failed to load products.json: ${response.status} ${response.statusText}`);
+    }
+
+    const products = await response.json();
+    console.log(`✅ Loaded ${products.length} products from JSON file`);
+    return products;
+  } catch (error) {
+    console.error('❌ Error loading products from JSON:', error);
+
+    // Fallback to a few sample products if JSON loading fails
+    console.log('🔄 Using fallback sample products...');
+    return [
+      {
+        name: "Wireless Headphones",
+        description: "Premium ANC over-ear headphones with 30h battery life.",
+        basePrice: 149.99,
+        baseCurrency: "USD",
+        priceOverrides: { "EUR": 139.99, "GBP": 119.99 },
+        images: [
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop"
+        ],
+        active: true
+      },
+      {
+        name: "Smart Watch",
+        description: "AMOLED display with GPS and fitness tracking.",
+        basePrice: 199.0,
+        baseCurrency: "USD",
+        priceOverrides: { "EUR": 189.0 },
+        images: [
+          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop"
+        ],
+        active: true
+      },
+      {
+        name: "Mechanical Keyboard",
+        description: "Low-profile mechanical keyboard with RGB backlighting.",
+        basePrice: 109.0,
+        baseCurrency: "USD",
+        priceOverrides: { "GBP": 99.0 },
+        images: [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop"
+        ],
+        active: true
+      }
+    ];
+  }
+}
+
+export async function seedProducts(forceReseed = false) {
   try {
     console.log('🌱 Starting to seed products...');
-    
+
     // Check if products already exist
     const productsCol = collection(db, 'products');
     const existingProducts = await getDocs(productsCol);
-    
-    if (existingProducts.size > 0) {
+
+    if (existingProducts.size > 0 && !forceReseed) {
       console.log(`⚠️  Found ${existingProducts.size} existing products. Skipping seed.`);
-      console.log('💡 To re-seed, delete the products collection first.');
-      return;
+      console.log('💡 To re-seed, run seedProducts(true) or delete the products collection first.');
+      return existingProducts.docs.map(doc => doc.id);
     }
 
-    // Add each product to Firestore
-    const promises = mockProducts.map(async (product) => {
-      const docRef = await addDoc(productsCol, {
-        ...product,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      console.log(`✅ Added product: ${product.name} (ID: ${docRef.id})`);
-      return docRef.id;
-    });
+    if (forceReseed && existingProducts.size > 0) {
+      console.log('🗑️  Force reseed enabled. Note: This will add new products alongside existing ones.');
+      console.log('💡 To completely replace products, manually delete the collection first.');
+    }
 
-    const productIds = await Promise.all(promises);
-    
-    console.log(`🎉 Successfully seeded ${productIds.length} products!`);
+    // Load products from JSON file
+    const productsData = await loadProductsFromJSON();
+
+    if (!productsData || productsData.length === 0) {
+      throw new Error('No product data loaded');
+    }
+
+    console.log(`📦 Preparing to seed ${productsData.length} products...`);
+
+    // Add each product to Firestore with progress tracking
+    const productIds = [];
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < productsData.length; i++) {
+      const product = productsData[i];
+      try {
+        const docRef = await addDoc(productsCol, {
+          ...product,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+
+        productIds.push(docRef.id);
+        successCount++;
+        console.log(`✅ [${i + 1}/${productsData.length}] Added: ${product.name} (ID: ${docRef.id})`);
+
+        // Add small delay to avoid overwhelming Firestore
+        if (i < productsData.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      } catch (error) {
+        errorCount++;
+        console.error(`❌ [${i + 1}/${productsData.length}] Failed to add ${product.name}:`, error);
+      }
+    }
+
+    console.log(`🎉 Seeding completed!`);
+    console.log(`✅ Successfully added: ${successCount} products`);
+    if (errorCount > 0) {
+      console.log(`❌ Failed to add: ${errorCount} products`);
+    }
     console.log('📦 Product IDs:', productIds);
-    
+
     return productIds;
   } catch (error) {
     console.error('❌ Error seeding products:', error);
@@ -156,8 +134,69 @@ export async function seedProducts() {
   }
 }
 
+/**
+ * Clears all products from the database (use with caution!)
+ */
+export async function clearProducts() {
+  try {
+    console.log('🗑️  Clearing all products...');
+
+    const productsCol = collection(db, 'products');
+    const existingProducts = await getDocs(productsCol);
+
+    if (existingProducts.size === 0) {
+      console.log('ℹ️  No products to clear.');
+      return;
+    }
+
+    console.log(`🗑️  Found ${existingProducts.size} products to delete...`);
+
+    // Note: In a production app, you'd want to use batch operations for better performance
+    const deletePromises = existingProducts.docs.map(async (doc) => {
+      await doc.ref.delete();
+      console.log(`🗑️  Deleted: ${doc.data().name} (ID: ${doc.id})`);
+    });
+
+    await Promise.all(deletePromises);
+    console.log('✅ All products cleared successfully!');
+
+  } catch (error) {
+    console.error('❌ Error clearing products:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets current product count
+ */
+export async function getProductCount() {
+  try {
+    const productsCol = collection(db, 'products');
+    const snapshot = await getDocs(productsCol);
+    const count = snapshot.size;
+    console.log(`📊 Current product count: ${count}`);
+    return count;
+  } catch (error) {
+    console.error('❌ Error getting product count:', error);
+    return 0;
+  }
+}
+
 // Auto-run if this script is loaded directly
 if (typeof window !== 'undefined') {
+  // Expose functions to window for browser console use
   window.seedProducts = seedProducts;
-  console.log('🚀 Product seeder loaded! Run seedProducts() to populate the database.');
+  window.clearProducts = clearProducts;
+  window.getProductCount = getProductCount;
+  window.loadProductsFromJSON = loadProductsFromJSON;
+
+  console.log('🚀 Product seeder loaded!');
+  console.log('📋 Available commands:');
+  console.log('  • seedProducts() - Seed products from JSON file');
+  console.log('  • seedProducts(true) - Force reseed (adds to existing)');
+  console.log('  • clearProducts() - Delete all products');
+  console.log('  • getProductCount() - Check current product count');
+  console.log('  • loadProductsFromJSON() - Preview JSON data');
+  console.log('');
+  console.log('💡 Quick start: Run seedProducts() to populate the database with all 36 products!');
 }
