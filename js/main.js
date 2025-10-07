@@ -587,9 +587,37 @@ function setupAiAssistant() {
     btn.addEventListener("click", async (e) => {
       const id = e.currentTarget.getAttribute("data-id");
       const p = products.find((x) => x.id === id);
+      
+      // Add visual feedback
+      const button = e.currentTarget;
+      const originalText = button.textContent;
+      button.textContent = 'Added!';
+      button.classList.add('bg-success-600', 'hover:bg-success-700');
+      button.classList.remove('bg-neutral-900', 'hover:bg-neutral-800');
+      
       state.cart.setItem(p);
+      
+      // Save to localStorage
+      try {
+        const cartData = state.cart.toArray();
+        localStorage.setItem('cart', JSON.stringify(cartData));
+      } catch (error) {
+        console.warn('Could not save cart to storage:', error);
+      }
+      
       await updatePricesForCurrency();
       updateCartUI();
+      
+      // Show success alert
+      showAlert(`${p.name} added to cart!`, 'success', 3000);
+      
+      // Reset button after delay
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('bg-success-600', 'hover:bg-success-700');
+        button.classList.add('bg-neutral-900', 'hover:bg-neutral-800');
+      }, 1500);
+      
       openCart();
     });
   });
@@ -643,22 +671,47 @@ function updateCartUI() {
   els.cartItems.querySelectorAll("[data-inc]").forEach((b) =>
     b.addEventListener("click", (e) => {
       state.cart.increase(e.currentTarget.getAttribute("data-inc"));
+      // Save to localStorage
+      try {
+        const cartData = state.cart.toArray();
+        localStorage.setItem('cart', JSON.stringify(cartData));
+      } catch {}
       updateCartUI();
       updateCartTotals();
     })
   );
   els.cartItems.querySelectorAll("[data-dec]").forEach((b) =>
     b.addEventListener("click", (e) => {
-      state.cart.decrease(e.currentTarget.getAttribute("data-dec"));
+      const id = e.currentTarget.getAttribute("data-dec");
+      const item = state.cart.itemsById.get(id);
+      const result = state.cart.decrease(id);
+      // Save to localStorage
+      try {
+        const cartData = state.cart.toArray();
+        localStorage.setItem('cart', JSON.stringify(cartData));
+      } catch {}
       updateCartUI();
       updateCartTotals();
+      if (!result && item) {
+        showAlert(`${item.name} removed from cart`, 'success', 2000);
+      }
     })
   );
   els.cartItems.querySelectorAll("[data-rem]").forEach((b) =>
     b.addEventListener("click", (e) => {
-      state.cart.remove(e.currentTarget.getAttribute("data-rem"));
+      const id = e.currentTarget.getAttribute("data-rem");
+      const item = state.cart.itemsById.get(id);
+      state.cart.remove(id);
+      // Save to localStorage
+      try {
+        const cartData = state.cart.toArray();
+        localStorage.setItem('cart', JSON.stringify(cartData));
+      } catch {}
       updateCartUI();
       updateCartTotals();
+      if (item) {
+        showAlert(`${item.name} removed from cart`, 'success', 2000);
+      }
     })
   );
 
@@ -770,6 +823,10 @@ async function handleConfirmPay() {
 
   // reset cart and close
   state.cart.clear();
+  // Clear cart from localStorage
+  try {
+    localStorage.removeItem('cart');
+  } catch {}
   updateCartUI();
   closeCheckout();
 
@@ -874,8 +931,10 @@ function setupAuthModals() {
       if (res?.user) {
         await upsertUserProfile(res.user);
       }
+      showAlert('Successfully signed in with Google!', 'success', 3000);
     } catch (err) {
       console.error('Google sign-in failed', err);
+      showAlert('Google sign in failed. Please try again.', 'error', 4000);
       // Fallback to redirect for unauthorized-domain/popup issues
       if (err && err.code === 'auth/unauthorized-domain') {
         try {
@@ -898,8 +957,10 @@ function setupAuthModals() {
       if (res?.user) {
         await upsertUserProfile(res.user);
       }
+      showAlert('Successfully signed in!', 'success', 3000);
     } catch (err) {
       console.error('Email sign-in failed', err);
+      showAlert('Sign in failed. Please check your credentials.', 'error', 4000);
     }
   });
 
@@ -914,8 +975,22 @@ function setupAuthModals() {
       if (res?.user) {
         await upsertUserProfile(res.user);
       }
+      showAlert('Account created successfully!', 'success', 3000);
     } catch (err) {
       console.error('Email sign-up failed', err);
+      showAlert('Sign up failed. Please try again.', 'error', 4000);
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (els.signInModal && !els.signInModal.classList.contains('hidden')) {
+        closeModal(els.signInModal, els.signInOverlay);
+      }
+      if (els.signUpModal && !els.signUpModal.classList.contains('hidden')) {
+        closeModal(els.signUpModal, els.signUpOverlay);
+      }
     }
   });
 }
@@ -971,6 +1046,19 @@ async function init() {
       state.currency = saved;
     }
   } catch {}
+
+  // Load cart from localStorage
+  try {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      const cartData = JSON.parse(savedCart);
+      cartData.forEach(item => {
+        state.cart.itemsById.set(item.id, item);
+      });
+    }
+  } catch (error) {
+    console.warn('Could not load cart from storage:', error);
+  }
 
   setupAuthUI();
   setupAuthModals();
@@ -1097,12 +1185,31 @@ init();
 
 function openModal(container, overlay) {
   container.classList.remove("hidden");
-  requestAnimationFrame(() => overlay.classList.remove("opacity-0"));
+  document.body.style.overflow = 'hidden';
+  
+  requestAnimationFrame(() => {
+    overlay.classList.remove("opacity-0");
+    const modalContent = container.querySelector('.transform');
+    if (modalContent) {
+      modalContent.style.transform = 'scale(1)';
+      modalContent.style.opacity = '1';
+    }
+  });
 }
 
 function closeModal(container, overlay) {
+  const modalContent = container.querySelector('.transform');
+  if (modalContent) {
+    modalContent.style.transform = 'scale(0.95)';
+    modalContent.style.opacity = '0';
+  }
+  
   overlay.classList.add("opacity-0");
-  setTimeout(() => container.classList.add("hidden"), 200);
+  
+  setTimeout(() => {
+    container.classList.add("hidden");
+    document.body.style.overflow = '';
+  }, 300);
 }
 
 // Tooltips
@@ -1140,6 +1247,8 @@ function hideTooltip(target) {
   }, { once: true });
 }
 
+
+
 // Alerts API
 export function showAlert(message, type = 'success', timeoutMs = 3000) {
   if (!els.alerts) return;
@@ -1160,5 +1269,6 @@ export function showAlert(message, type = 'success', timeoutMs = 3000) {
   if (timeoutMs > 0) setTimeout(hide, timeoutMs);
   wrap.addEventListener('click', hide);
 }
+
 
 

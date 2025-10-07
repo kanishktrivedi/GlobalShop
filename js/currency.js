@@ -41,23 +41,105 @@ async function fetchRates(base) {
   if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
     return cached.rates;
   }
-  // Public ECB proxy or fallback demo endpoint
-  const url = `https://api.exchangerate.host/latest?base=${encodeURIComponent(base)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch rates");
-  const data = await res.json();
-  const rates = data.rates || {};
-  rates[base] = 1;
-  ratesCache.set(cacheKey, { rates, timestamp: Date.now() });
-  return rates;
+  
+  // Try multiple endpoints for better reliability
+  const endpoints = [
+    `https://api.exchangerate.host/latest?base=${encodeURIComponent(base)}`,
+    `https://api.fxratesapi.com/latest?base=${encodeURIComponent(base)}`,
+    `https://open.er-api.com/v6/latest/${encodeURIComponent(base)}`
+  ];
+  
+  for (const url of endpoints) {
+    try {
+      console.log(`🔄 Fetching rates from: ${url}`);
+      const res = await fetch(url, { 
+        timeout: 5000,
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      if (!res.ok) {
+        console.warn(`❌ Failed to fetch from ${url}: ${res.status}`);
+        continue;
+      }
+      
+      const data = await res.json();
+      const rates = data.rates || {};
+      rates[base] = 1;
+      
+      console.log(`✅ Successfully fetched rates for ${base}`);
+      ratesCache.set(cacheKey, { rates, timestamp: Date.now() });
+      return rates;
+      
+    } catch (error) {
+      console.warn(`❌ Error fetching from ${url}:`, error.message);
+      continue;
+    }
+  }
+  
+  throw new Error("All currency API endpoints failed");
 }
 
 export async function convertAmount(amount, fromCurrency, toCurrency) {
   if (fromCurrency === toCurrency) return amount;
-  const rates = await fetchRates(fromCurrency);
-  const rate = rates[toCurrency];
-  if (!rate) throw new Error(`Missing rate ${fromCurrency}->${toCurrency}`);
-  return amount * rate;
+  
+  try {
+    const rates = await fetchRates(fromCurrency);
+    const rate = rates[toCurrency];
+    if (!rate) {
+      console.warn(`Missing rate ${fromCurrency}->${toCurrency}, using fallback`);
+      return getFallbackRate(amount, fromCurrency, toCurrency);
+    }
+    return amount * rate;
+  } catch (error) {
+    console.warn(`Currency conversion failed: ${error.message}, using fallback`);
+    return getFallbackRate(amount, fromCurrency, toCurrency);
+  }
+}
+
+// Fallback rates for when API is unavailable
+function getFallbackRate(amount, fromCurrency, toCurrency) {
+  const fallbackRates = {
+    'USD': {
+      'EUR': 0.85,
+      'GBP': 0.73,
+      'JPY': 110,
+      'CAD': 1.25,
+      'AUD': 1.35,
+      'CHF': 0.92,
+      'CNY': 6.45,
+      'INR': 74.5
+    },
+    'EUR': {
+      'USD': 1.18,
+      'GBP': 0.86,
+      'JPY': 129,
+      'CAD': 1.47,
+      'AUD': 1.59,
+      'CHF': 1.08,
+      'CNY': 7.59,
+      'INR': 87.7
+    },
+    'GBP': {
+      'USD': 1.37,
+      'EUR': 1.16,
+      'JPY': 150,
+      'CAD': 1.71,
+      'AUD': 1.85,
+      'CHF': 1.26,
+      'CNY': 8.84,
+      'INR': 102.1
+    }
+  };
+
+  const fromRates = fallbackRates[fromCurrency];
+  if (fromRates && fromRates[toCurrency]) {
+    console.log(`Using fallback rate: ${fromCurrency} -> ${toCurrency} = ${fromRates[toCurrency]}`);
+    return amount * fromRates[toCurrency];
+  }
+
+  // If no fallback rate available, return original amount
+  console.warn(`No fallback rate available for ${fromCurrency} -> ${toCurrency}, returning original amount`);
+  return amount;
 }
 
 export async function convertList(lineItems, toCurrency, taxRate = 0) {
@@ -72,6 +154,24 @@ export async function convertList(lineItems, toCurrency, taxRate = 0) {
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
   return { items: subtotals, subtotal, tax, total };
+}
+
+// Preload common currency rates
+export async function preloadRates() {
+  const commonCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD'];
+  
+  console.log('🔄 Preloading currency rates...');
+  
+  for (const currency of commonCurrencies) {
+    try {
+      await fetchRates(currency);
+      console.log(`✅ Preloaded rates for ${currency}`);
+    } catch (error) {
+      console.warn(`⚠️  Failed to preload rates for ${currency}:`, error.message);
+    }
+  }
+  
+  console.log('📦 Currency rates preloading completed');
 }
 
 export { DEFAULT_BASE };

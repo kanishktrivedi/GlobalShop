@@ -2,9 +2,12 @@
 
 const routes = {
   '/': 'view-home',
-  '/products': 'view-products',
-  '/cart': 'view-cart',
-  '/profile': 'view-profile',
+  '/index.html': 'view-home',
+  '/products.html': 'view-products',
+  '/cart.html': 'view-cart',
+  '/profile.html': 'view-profile',
+  '/orders.html': 'view-orders',
+  '/settings.html': 'view-settings',
 };
 
 function getPath() {

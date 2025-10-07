@@ -28,6 +28,31 @@ const state = {
   currency: "USD"
 };
 
+// Load cart from localStorage on initialization
+function loadCartFromStorage() {
+  try {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      const cartData = JSON.parse(savedCart);
+      cartData.forEach(item => {
+        state.cart.itemsById.set(item.id, item);
+      });
+    }
+  } catch (error) {
+    console.warn('Could not load cart from storage:', error);
+  }
+}
+
+// Save cart to localStorage
+function saveCartToStorage() {
+  try {
+    const cartData = state.cart.toArray();
+    localStorage.setItem('cart', JSON.stringify(cartData));
+  } catch (error) {
+    console.warn('Could not save cart to storage:', error);
+  }
+}
+
 // ============================================================================
 // DOM ELEMENT REFERENCES
 // ============================================================================
@@ -87,41 +112,71 @@ function updateCartUI() {
  */
 function showCartItems(items) {
   els.cartItems.innerHTML = items
-    .map(item => `
-      <div class="cart-item rounded-lg border border-neutral-200 bg-white p-4">
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-4 flex-1">
-            <div class="h-16 w-16 rounded-md bg-neutral-100 flex items-center justify-center">
-              <svg class="h-8 w-8 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="9" cy="9" r="2"/>
-                <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-              </svg>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-sm font-medium text-neutral-900">${item.name}</h3>
-              <p class="text-sm text-neutral-600">${formatCurrency(item.priceBase, item.currencyBase)}</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <div class="quantity-controls flex items-center gap-2">
-              <button data-dec="${item.id}" class="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-700 hover:bg-neutral-50">
-                −
-              </button>
-              <span class="quantity-display w-8 text-center text-sm font-medium">${item.qty}</span>
-              <button data-inc="${item.id}" class="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-700 hover:bg-neutral-50">
-                +
-              </button>
+    .map(item => {
+      const itemTotal = item.priceBase * item.qty;
+      return `
+        <div class="cart-item rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <!-- Product Image -->
+            <div class="h-20 w-20 flex-shrink-0 rounded-lg bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center overflow-hidden">
+              ${item.image ? 
+                `<img src="${item.image}" alt="${item.name}" class="h-full w-full object-cover" />` :
+                `<svg class="h-10 w-10 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>`
+              }
             </div>
 
-            <button data-rem="${item.id}" class="rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100">
-              Remove
-            </button>
+            <!-- Product Details -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-neutral-900 mb-1">${item.name}</h3>
+                  <p class="text-sm text-neutral-600 mb-2">${item.description || 'Premium quality product'}</p>
+                  <div class="flex items-center gap-4 text-sm">
+                    <span class="text-neutral-600">Unit Price:</span>
+                    <span class="font-medium text-neutral-900">${formatCurrency(item.priceBase, item.currencyBase)}</span>
+                  </div>
+                </div>
+
+                <!-- Remove Button -->
+                <button data-rem="${item.id}" class="rounded-full p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 transition-colors" title="Remove item">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3,6 5,6 21,6"/>
+                    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Quantity Controls and Total -->
+              <div class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-medium text-neutral-700">Quantity:</span>
+                  <div class="quantity-controls flex items-center gap-1 rounded-lg border border-neutral-300 bg-neutral-50">
+                    <button data-dec="${item.id}" class="flex h-10 w-10 items-center justify-center text-lg font-medium text-neutral-700 hover:bg-neutral-100 transition-colors rounded-l-lg">
+                      −
+                    </button>
+                    <span class="quantity-display flex h-10 w-12 items-center justify-center text-sm font-semibold bg-white border-x border-neutral-300">${item.qty}</span>
+                    <button data-inc="${item.id}" class="flex h-10 w-10 items-center justify-center text-lg font-medium text-neutral-700 hover:bg-neutral-100 transition-colors rounded-r-lg">
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-sm text-neutral-600">Item Total</div>
+                  <div class="text-lg font-bold text-neutral-900">${formatCurrency(itemTotal, item.currencyBase)}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    `)
+      `;
+    })
     .join("");
 
   // Show cart summary
@@ -150,7 +205,9 @@ function attachCartHandlers() {
     btn.addEventListener("click", (e) => {
       const id = e.currentTarget.getAttribute("data-inc");
       state.cart.increase(id);
+      saveCartToStorage();
       updateCartUI();
+      showAlert('Quantity updated', 'success', 2000);
     });
   });
 
@@ -158,8 +215,16 @@ function attachCartHandlers() {
   els.cartItems.querySelectorAll("[data-dec]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const id = e.currentTarget.getAttribute("data-dec");
-      state.cart.decrease(id);
+      const item = state.cart.itemsById.get(id);
+      const result = state.cart.decrease(id);
+      saveCartToStorage();
       updateCartUI();
+      
+      if (!result) {
+        showAlert(`${item?.name || 'Item'} removed from cart`, 'success', 2000);
+      } else {
+        showAlert('Quantity updated', 'success', 2000);
+      }
     });
   });
 
@@ -167,8 +232,11 @@ function attachCartHandlers() {
   els.cartItems.querySelectorAll("[data-rem]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const id = e.currentTarget.getAttribute("data-rem");
+      const item = state.cart.itemsById.get(id);
       state.cart.remove(id);
+      saveCartToStorage();
       updateCartUI();
+      showAlert(`${item?.name || 'Item'} removed from cart`, 'success', 2000);
     });
   });
 }
@@ -335,9 +403,186 @@ function showAlert(message, type = 'success', timeoutMs = 3000) {
 // ============================================================================
 
 /**
+ * Adds an item to the cart (for external use)
+ */
+window.addToCart = function(product) {
+  state.cart.setItem(product);
+  saveCartToStorage();
+  updateCartUI();
+  showAlert(`${product.name} added to cart!`, 'success', 3000);
+};
+
+/**
+ * Gets current cart count (for external use)
+ */
+window.getCartCount = function() {
+  return state.cart.toArray().reduce((total, item) => total + item.qty, 0);
+};
+
+/**
+ * Gets current cart items (for external use)
+ */
+window.getCartItems = function() {
+  return state.cart.toArray();
+};
+
+/**
+ * Clears the cart (for external use)
+ */
+window.clearCart = function() {
+  state.cart.clear();
+  saveCartToStorage();
+  updateCartUI();
+  showAlert('Cart cleared', 'success', 2000);
+};
+
+/**
+ * Sets up cart drawer functionality for other pages
+ */
+function setupCartDrawer() {
+  // Create cart drawer if it doesn't exist
+  if (!document.getElementById('cartDrawer')) {
+    const cartDrawer = document.createElement('div');
+    cartDrawer.id = 'cartDrawer';
+    cartDrawer.className = 'fixed inset-0 z-50 hidden';
+    cartDrawer.innerHTML = `
+      <div id="cartOverlay" class="absolute inset-0 bg-black/40 opacity-0 transition-opacity"></div>
+      <aside class="absolute right-0 top-0 h-full w-full max-w-md translate-x-full transform bg-white shadow-2xl transition-transform">
+        <div class="flex h-full flex-col">
+          <div class="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+            <h2 class="text-lg font-semibold">Shopping Cart</h2>
+            <button id="closeCartDrawer" class="rounded-md p-2 text-neutral-600 hover:bg-neutral-100">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 py-4">
+            <div id="drawerCartItems"></div>
+          </div>
+          <div class="border-t border-neutral-200 px-6 py-4">
+            <div class="mb-4">
+              <div class="flex justify-between text-sm">
+                <span>Total:</span>
+                <span id="drawerCartTotal" class="font-semibold">$0.00</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <button id="viewCartBtn" class="w-full rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-200">
+                View Cart
+              </button>
+              <button id="checkoutDrawerBtn" class="w-full rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+                Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    `;
+    document.body.appendChild(cartDrawer);
+
+    // Setup drawer event listeners
+    document.getElementById('closeCartDrawer').addEventListener('click', closeCartDrawer);
+    document.getElementById('cartOverlay').addEventListener('click', closeCartDrawer);
+    document.getElementById('viewCartBtn').addEventListener('click', () => {
+      window.location.href = '/cart.html';
+    });
+    document.getElementById('checkoutDrawerBtn').addEventListener('click', () => {
+      window.location.href = '/?checkout=true';
+    });
+  }
+}
+
+/**
+ * Opens the cart drawer
+ */
+window.openCartDrawer = function() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('cartOverlay');
+  const aside = drawer.querySelector('aside');
+  
+  drawer.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    overlay.classList.remove('opacity-0');
+    aside.classList.remove('translate-x-full');
+  });
+  
+  updateDrawerCart();
+};
+
+/**
+ * Closes the cart drawer
+ */
+function closeCartDrawer() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('cartOverlay');
+  const aside = drawer.querySelector('aside');
+  
+  overlay.classList.add('opacity-0');
+  aside.classList.add('translate-x-full');
+  setTimeout(() => drawer.classList.add('hidden'), 200);
+}
+
+/**
+ * Updates the cart drawer content
+ */
+function updateDrawerCart() {
+  const drawerItems = document.getElementById('drawerCartItems');
+  const drawerTotal = document.getElementById('drawerCartTotal');
+  
+  if (!drawerItems || !drawerTotal) return;
+  
+  const items = state.cart.toArray();
+  
+  if (items.length === 0) {
+    drawerItems.innerHTML = `
+      <div class="text-center py-8">
+        <svg class="mx-auto h-12 w-12 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <p class="mt-2 text-sm text-neutral-600">Your cart is empty</p>
+      </div>
+    `;
+    drawerTotal.textContent = '$0.00';
+    return;
+  }
+  
+  drawerItems.innerHTML = items.map(item => `
+    <div class="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-0">
+      <div class="h-12 w-12 rounded-md bg-neutral-100 flex items-center justify-center flex-shrink-0">
+        ${item.image ? 
+          `<img src="${item.image}" alt="${item.name}" class="h-full w-full object-cover rounded-md" />` :
+          `<svg class="h-6 w-6 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="9" cy="9" r="2"/>
+            <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+          </svg>`
+        }
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-neutral-900 truncate">${item.name}</p>
+        <p class="text-xs text-neutral-600">Qty: ${item.qty} × ${formatCurrency(item.priceBase, item.currencyBase)}</p>
+      </div>
+      <div class="text-sm font-medium text-neutral-900">
+        ${formatCurrency(item.priceBase * item.qty, item.currencyBase)}
+      </div>
+    </div>
+  `).join('');
+  
+  const total = items.reduce((sum, item) => sum + (item.priceBase * item.qty), 0);
+  drawerTotal.textContent = formatCurrency(total, items[0]?.currencyBase || 'USD');
+}
+
+/**
  * Initialize the cart page
  */
 async function init() {
+  // Load cart from storage first
+  loadCartFromStorage();
+  
   // Setup all functionality
   setupAuthUI();
   setupMobileNav();
@@ -346,6 +591,9 @@ async function init() {
 
   // Load initial cart state
   updateCartUI();
+
+  // Setup cart drawer for cross-page functionality
+  setupCartDrawer();
 
   // Setup enhanced cursor if elements exist
   if (document.getElementById('cursorDot') && document.getElementById('cursorOutline')) {

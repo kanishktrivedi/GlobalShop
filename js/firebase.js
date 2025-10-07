@@ -115,3 +115,29 @@ export async function setPreferredCurrency(uid, currency) {
   const ref = doc(db, "users", uid);
   await setDoc(ref, { preferredCurrency: currency, updatedAt: serverTimestamp() }, { merge: true });
 }
+
+// Products helpers
+export async function getProducts() {
+  try {
+    const productsCol = collection(db, "products");
+    // Simple query without composite index requirement
+    const querySnapshot = await getDocs(productsCol);
+    
+    // Filter and sort in JavaScript to avoid index requirements
+    const products = querySnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(product => product.active === true)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    return products;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+export async function getProduct(productId) {
+  const ref = doc(db, "products", productId);
+  const snap = await getDoc(ref);
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
